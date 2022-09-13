@@ -19,6 +19,7 @@ use App\Order;
 use App\OrderDetail;
 use App\User;
 use App\UserShipping;
+use Session;
 
 if (!defined('ACTIVE')) define('ACTIVE', 1);
 if (!defined('INACTIVE')) define('INACTIVE', 0);
@@ -34,6 +35,8 @@ class CartController extends Controller
 
     public function addToCart(Request $request)
     {
+      //  dd($request->session()->get('session_id'));
+
         $validator = Validator::make($request->all(), [
             'product_id' => 'required|integer',
             'quantity'  => 'required|numeric|gt:0'
@@ -45,11 +48,14 @@ class CartController extends Controller
         }
 
         $product = Product::where('id', $request->product_id)->with('productIva', 'productcombo')->first();
+
         $user_id = auth()->user()->id ?? null;
+
         //Si se agrega un plan y no se esta loggeado lo mando al login
         if ($product->is_plan == 1 && $user_id == null) {
             return response()->json(['error' => 'Debe iniciar sesión antes de agregar un plan al carrito.']);
         }
+
         //dd($product->productcombo);
         if (count($product->productcombo) > 0) {
             //dd($product->productcombo);
@@ -77,6 +83,7 @@ class CartController extends Controller
                 $selected_attr = [];
 
                 $s_id = session()->get('session_id');
+
                 if ($s_id == null) {
                     session()->put('session_id', uniqid());
                     $s_id = session()->get('session_id');
@@ -178,6 +185,7 @@ class CartController extends Controller
             $selected_attr = [];
 
             $s_id = session()->get('session_id');
+
             if ($s_id == null) {
                 session()->put('session_id', uniqid());
                 $s_id = session()->get('session_id');
@@ -324,6 +332,8 @@ class CartController extends Controller
 
     public function getCart()
     {
+
+      //  dd(Session::all());
 
         $subtotal = 0;
         $tasa = Rates::select('tasa_del_dia')->where('status', '1')->orderBy('id', 'desc')->first();

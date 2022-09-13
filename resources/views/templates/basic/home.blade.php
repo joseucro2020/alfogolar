@@ -21,6 +21,7 @@
             <center>
                 <div id="msg_loading" style="display: none;padding: 30px;">Cargando...</div>
             </center>
+                        
         </div>
     </section>
 @endsection
